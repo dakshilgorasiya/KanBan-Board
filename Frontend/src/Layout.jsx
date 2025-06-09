@@ -5,9 +5,11 @@ import { Outlet } from "react-router-dom";
 function Layout() {
   return (
     <>
-      <Header />
-      <Outlet />
-      <Footer />
+      <div className="m-0 p-0">
+        <Header />
+        <Outlet />
+        <Footer />
+      </div>
     </>
   );
 }
