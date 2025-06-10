@@ -13,7 +13,7 @@ namespace KanBanBoard.Data
             // Seed admin user
             if(!context.Users.Any(u => u.UserName == "admin"))
             {
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword("admin");
+                string hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword("admin");
 
                 var adminUser = new UserModel
                 {
