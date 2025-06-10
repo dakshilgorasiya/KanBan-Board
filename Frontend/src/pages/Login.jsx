@@ -10,6 +10,7 @@ function Login() {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    role: "employee", // Default role set to employee
   });
 
   const handleChange = (e) => {
