@@ -65,16 +65,24 @@ namespace KanBanBoard
                 options.AddPolicy("EmployeeOnly", policy => policy.RequireRole("Employee"));
             });
 
+            builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true; // Disable automatic validation response
+            });
             // AutoMapper
             builder.Services.AddAutoMapper(typeof(AuthMapping));
+            builder.Services.AddAutoMapper(typeof(CategoryMapping));
 
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddScoped<IAuthService, AuthService>();
+            // Dependency Injection
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             var app = builder.Build();
 
