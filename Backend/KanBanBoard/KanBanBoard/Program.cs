@@ -1,5 +1,12 @@
 using KanBanBoard.Data;
+using KanBanBoard.Interfaces;
+using KanBanBoard.Mapping;
+using KanBanBoard.Repository;
+using KanBanBoard.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace KanBanBoard
 {
@@ -8,6 +15,7 @@ namespace KanBanBoard
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var config = builder.Configuration;
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
@@ -22,6 +30,34 @@ namespace KanBanBoard
                                     .AllowAnyHeader());
             });
 
+            // JWT Authentication
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:SecretKey"]))
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        // Read token from cookies if Authorization header is missing
+                        var token = context.Request.Cookies["AccessToken"];
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            context.Token = token;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+
             // RBAC
             builder.Services.AddAuthorization(options =>
             {
@@ -29,10 +65,16 @@ namespace KanBanBoard
                 options.AddPolicy("EmployeeOnly", policy => policy.RequireRole("Employee"));
             });
 
+            // AutoMapper
+            builder.Services.AddAutoMapper(typeof(AuthMapping));
+
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
             var app = builder.Build();
 
@@ -76,6 +118,8 @@ namespace KanBanBoard
             }
 
             app.UseCors("CorsPolicy");
+
+            app.UseAuthentication();
 
             app.UseHttpsRedirection();
 

@@ -31,7 +31,7 @@ namespace KanBanBoard.Model
 
     public enum UserRole
     {
-        Admin,
-        Employee
+        Employee,
+        Admin
     }
 }
