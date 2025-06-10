@@ -11,13 +11,23 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import Layout from "./Layout.jsx";
-import { Login } from "./pages";
+import {
+  Login,
+  AddEmployee,
+  KanbanBoardAdmin,
+  KanbanBoardEmployee,
+  ManageEmployee,
+} from "./pages";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="" element={<Layout />}>
       <Route path="" element={<App />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/add-employee" element={<AddEmployee />} />
+      <Route path="/kanban-board-admin" element={<KanbanBoardAdmin />} />
+      <Route path="/kanban-board-employee" element={<KanbanBoardEmployee />} />
+      <Route path="/manage-employees" element={<ManageEmployee />} />
     </Route>
   )
 );
