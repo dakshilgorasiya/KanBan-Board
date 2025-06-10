@@ -26,7 +26,7 @@ namespace KanBanBoard.Model
         [ForeignKey(nameof(ToCategory))]
         public int ToCategoryId { get; set; }
 
-        public DateTime? MovedAt { get; set; }
+        public DateTime? MovedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation Properties
         public TaskModel? Task { get; set; }

@@ -25,7 +25,7 @@ namespace KanBanBoard.Model
         [ForeignKey(nameof(CurrentCategory))]
         public int CurrentCategoryId { get; set; }
 
-        public DateTime? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation Properties
         public UserModel? AssignedUser { get; set; }

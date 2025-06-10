@@ -22,9 +22,58 @@ namespace KanBanBoard.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<CategoriesModel>().HasQueryFilter(c => !c.IsDeleted);
+            // TaskModel -> UserModel (AssignTo)
+            modelBuilder.Entity<TaskModel>()
+                .HasOne(t => t.AssignedUser)
+                .WithMany(u => u.AssignedTasks)
+                .HasForeignKey(t => t.AssignTo)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<TaskModel>().HasQueryFilter(t => !t.IsDeleted);
+            // TaskModel -> CategoriesModel (CurrentCategory)
+            modelBuilder.Entity<TaskModel>()
+                .HasOne(t => t.CurrentCategory)
+                .WithMany(c => c.Tasks)
+                .HasForeignKey(t => t.CurrentCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // TasklogModel -> TaskModel
+            modelBuilder.Entity<TasklogModel>()
+                .HasOne(tl => tl.Task)
+                .WithMany(t => t.TaskLogs)
+                .HasForeignKey(tl => tl.TaskID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // TasklogModel -> UserModel (MovedBy)
+            modelBuilder.Entity<TasklogModel>()
+                .HasOne(tl => tl.User)
+                .WithMany(u => u.MovedLogs)
+                .HasForeignKey(tl => tl.MovedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // TasklogModel -> CategoriesModel (FromCategory)
+            modelBuilder.Entity<TasklogModel>()
+                .HasOne(tl => tl.FromCategory)
+                .WithMany(c => c.FromLogs)
+                .HasForeignKey(tl => tl.FromCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // TasklogModel -> CategoriesModel (ToCategory)
+            modelBuilder.Entity<TasklogModel>()
+                .HasOne(tl => tl.ToCategory)
+                .WithMany(c => c.ToLogs)
+                .HasForeignKey(tl => tl.ToCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            UserModel AdminUser = new UserModel
+            {
+                UserId = 1,
+                UserName = "admin",
+                Email = "admin@gmail.com",
+                Password = BCrypt.Net.BCrypt.HashPassword("admin@gmail.com"),
+                Role = UserRole.Admin
+            };
+
+            modelBuilder.Entity<UserModel>().HasData(AdminUser);
         }
     }
 }

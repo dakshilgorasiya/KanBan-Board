@@ -1,3 +1,6 @@
+using KanBanBoard.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace KanBanBoard
 {
     public class Program
@@ -6,7 +9,9 @@ namespace KanBanBoard
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Database connection Service Remain Here...
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")));
+
 
             // CORS
             builder.Services.AddCors(options =>
@@ -30,6 +35,33 @@ namespace KanBanBoard
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            // Test DB connection
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                try
+                {
+                    if (dbContext.Database.CanConnect())
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine(" Successfully connected to the database.");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine("Could not connect to the database.");
+                        Console.ResetColor();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Database connection error: " + ex.Message);
+                    Console.ResetColor();
+                }
+            }
 
             if (app.Environment.IsDevelopment())
             {
