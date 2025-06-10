@@ -1,12 +1,11 @@
 import { useState } from "react";
 import "./App.css";
-import { Login } from "./pages";
-import KanbanBoard from "./components/KanbanBoard";
+import { Login, AddEmployee, KanbanBoardAdmin } from "./pages";
 
 function App() {
   return (
     <>
-      <KanbanBoard />
+      <KanbanBoardAdmin />
     </>
   );
 }
