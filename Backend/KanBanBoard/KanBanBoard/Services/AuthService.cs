@@ -81,5 +81,32 @@ namespace KanBanBoard.Services
 
             return _mapper.Map<UserResponseDTO>(userModel);
         }
+
+        public async Task<UserResponseDTO> GetCurrentUserAsync(int userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found");
+            }
+
+            return _mapper.Map<UserResponseDTO>(user);
+        }
+
+        public async Task<bool> RemoveEmployeeAsync(int userId)
+        {
+            return await _userRepository.SoftDeleteUserAsync(userId);
+        }
+
+        public async Task<List<EmployeeListDTO>> GetAllEmployeesAsync()
+        {
+            var employees = await _userRepository.GetAllEmployeesAsync();
+
+            return employees.Select(emp => new EmployeeListDTO
+            {
+                Id = emp.UserId,
+                Name = emp.UserName
+            }).ToList();
+        }
     }
 }
