@@ -61,6 +61,14 @@ namespace KanBanBoard.Controllers
             }
         }
 
+
+        [HttpPost("Logout")]
+        public async Task<IActionResult> logout()
+        {
+            Response.Cookies.Delete("AccessToken");
+            return Ok(new ApiResponse<string>(200, "Logout successful"));
+        }
+
         //[Authorize]
         //[HttpGet("Get-CurrentUser")]
         //public async Task<IActionResult> GetUser()
