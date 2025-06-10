@@ -2,7 +2,7 @@
 using KanBanBoard.Model;
 using KanBanBoard.DTO;
 
-namespace KanBanBoard.Mappings
+namespace KanBanBoard.Mapping
 {
     public class CategoryMapping : Profile
     {
