@@ -5,9 +5,24 @@ import { Snackbar, Alert } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
+const intialColumns = {
+  todo: {
+    name: "To Do",
+    items: [],
+  },
+  inprogress: {
+    name: "In Progress",
+    items: [],
+  },
+  done: {
+    name: "Done",
+    items: [],
+  },
+};
+
 function KanbanBoardAdmin() {
   // to store data
-  const [columns, setColumns] = useState(null);
+  const [columns, setColumns] = useState(intialColumns);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,9 +31,9 @@ function KanbanBoardAdmin() {
   const [newCategory, setNewCategory] = useState("");
 
   const [employees, setEmployees] = useState([
-    { id: "emp1", name: "Alice" },
-    { id: "emp2", name: "Bob" },
-    { id: "emp3", name: "Charlie" },
+    { id: 1, name: "Alice" },
+    { id: 2, name: "Bob" },
+    { id: 3, name: "Charlie" },
   ]);
 
   const [newTask, setNewTask] = useState({
@@ -36,14 +51,14 @@ function KanbanBoardAdmin() {
         name: "To Do",
         items: [
           {
-            id: "task-1",
+            id: "1",
             title: "Design landing page",
             description: "Create responsive UI",
             lastMainCategory: "todo",
             assignedTo: "Alice",
           },
           {
-            id: "task-2",
+            id: "2",
             title: "Write documentation",
             description: "Document API endpoints",
             lastMainCategory: "todo",
@@ -56,7 +71,7 @@ function KanbanBoardAdmin() {
         name: "In Progress",
         items: [
           {
-            id: "task-3",
+            id: "3",
             title: "Develop login page",
             description: "Implement authentication flow",
             lastMainCategory: "inprogress",
@@ -69,7 +84,7 @@ function KanbanBoardAdmin() {
         name: "Done",
         items: [
           {
-            id: "task-4",
+            id: "4",
             title: "Setup database",
             description: "Initialize schema and tables",
             lastMainCategory: "done",
@@ -110,17 +125,17 @@ function KanbanBoardAdmin() {
     const destItems = Array.from(destCol.items);
     const [movedItem] = sourceItems.splice(source.index, 1);
 
-    // restrict moving
-    if (movedItem.lastMainCategory === "inprogress" && destColId === "todo") {
-      setError(
-        "Cannot move item as it is in progress and cannot be moved back to To Do."
-      );
-      return;
-    }
-    if (movedItem.lastMainCategory === "done" && destColId !== "done") {
-      setError("Cannot move item as it is done");
-      return;
-    }
+    // restrict moving not needed for admin
+    // if (movedItem.lastMainCategory === "inprogress" && destColId === "todo") {
+    //   setError(
+    //     "Cannot move item as it is in progress and cannot be moved back to To Do."
+    //   );
+    //   return;
+    // }
+    // if (movedItem.lastMainCategory === "done" && destColId !== "done") {
+    //   setError("Cannot move item as it is done");
+    //   return;
+    // }
 
     // update the lastMainCategory of the moved item
     if (destColId === "todo") {
@@ -289,14 +304,6 @@ function KanbanBoardAdmin() {
           {error}
         </Alert>
       </Snackbar>
-
-      <h1 className="text-2xl font-bold mb-4">Kanban Board</h1>
-
-      <Link to="/manage-employees">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded mb-4">
-          Manage Employees <ArrowRight className="inline ml-1" />
-        </button>
-      </Link>
 
       {/* Add Category */}
       <div className="mb-4 flex gap-2">

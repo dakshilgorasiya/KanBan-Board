@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { setUser } from "../store/features/authSlice";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
@@ -21,14 +23,20 @@ function Login() {
     e.preventDefault();
     console.log("Login submitted:", formData);
 
-    // call api and then store response in redux
+    //todo : call api and then store response in redux
     const dummyResponse = {
       email: "a@gmail.com",
       userName: "a",
-      isAdmin: true,
+      isAdmin: formData.role === "admin", // Use the role from formData
     };
-
+    console.log("Dummy response:", dummyResponse);
     dispatch(setUser(dummyResponse));
+
+    if (dummyResponse.isAdmin) {
+      navigate("/kanban-board-admin");
+    } else {
+      navigate("/kanban-board-employee");
+    }
   };
 
   return (
@@ -65,6 +73,18 @@ function Login() {
                 className="mt-1 w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                 required
               />
+            </div>
+            <div>
+              <label>Select role (for static use removed soon)</label>
+              <select
+                name="role"
+                className="mt-1 w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                onChange={handleChange}
+                value={formData.role}
+              >
+                <option value="admin">Admin</option>
+                <option value="employee">Employee</option>
+              </select>
             </div>
             <button
               type="submit"

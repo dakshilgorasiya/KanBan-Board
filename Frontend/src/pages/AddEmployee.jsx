@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Snackbar, Alert } from "@mui/material";
 
 const AddEmployee = () => {
   const [employee, setEmployee] = useState({
@@ -6,6 +7,8 @@ const AddEmployee = () => {
     email: "",
     password: "",
   });
+
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setEmployee((prev) => ({
@@ -18,11 +21,33 @@ const AddEmployee = () => {
     e.preventDefault();
     console.log("Employee Added:", employee);
 
-    // call api to add employee
+    try {
+      // call api
+    } catch (error) {
+      setError("Failed to add employee. Please try again.");
+      console.error("Error adding employee:", error);
+      return;
+    }
   };
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <div className="w-full flex justify-center items-center h-screen">
+      <Snackbar
+        open={!!error}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert severity="error" variant="filled">
+          {error}
+        </Alert>
+      </Snackbar>
+
       <div className="mx-auto w-80 p-6 bg-white rounded-xl shadow-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Add Employee</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
