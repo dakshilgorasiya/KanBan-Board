@@ -63,6 +63,12 @@ namespace KanBanBoard
                 }
             }
 
+            using(var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                DatabaseSeeder.Seed(dbContext);
+            }
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
