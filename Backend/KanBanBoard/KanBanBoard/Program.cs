@@ -1,4 +1,9 @@
 using KanBanBoard.Data;
+using KanBanBoard.Interfaces;
+using KanBanBoard.Mappings;
+using KanBanBoard.Repository;
+using KanBanBoard.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace KanBanBoard
@@ -29,10 +34,21 @@ namespace KanBanBoard
                 options.AddPolicy("EmployeeOnly", policy => policy.RequireRole("Employee"));
             });
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true; // Disable automatic validation response
+            });
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            // Dependency Injection
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+
+            // automapper
+            builder.Services.AddAutoMapper(typeof(CategoryMapping));
 
             var app = builder.Build();
 
