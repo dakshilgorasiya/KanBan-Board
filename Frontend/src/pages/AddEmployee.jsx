@@ -6,6 +6,7 @@ const AddEmployee = () => {
     username: "",
     email: "",
     password: "",
+    role: "employee",
   });
 
   const [error, setError] = useState("");
@@ -85,6 +86,19 @@ const AddEmployee = () => {
               required
               className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium">Role</label>
+            <select
+              name="role"
+              value={employee.role}
+              onChange={handleChange}
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+            >
+              <option value="employee">Employee</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
 
           <button

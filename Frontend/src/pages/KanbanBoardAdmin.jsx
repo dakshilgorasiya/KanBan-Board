@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 import { Snackbar, Alert } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const intialColumns = {
   todo: {
@@ -21,6 +23,8 @@ const intialColumns = {
 };
 
 function KanbanBoardAdmin() {
+  const navigate = useNavigate();
+
   // to store data
   const [columns, setColumns] = useState(intialColumns);
 
@@ -289,6 +293,14 @@ function KanbanBoardAdmin() {
       },
     });
   };
+
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  useEffect(() => {
+    if (isLoggedIn === false) {
+      navigate("/login");
+      return;
+    }
+  }, [isLoggedIn]);
 
   if (isLoading) {
     return <div className="text-center">Loading...</div>;

@@ -8,13 +8,24 @@ import {
   TaskLogs,
   AllLogs,
 } from "./pages";
+import { useSelector } from "react-redux";
 
 function App() {
-  return (
-    <>
-      <Login />
-    </>
-  );
+  const isAdmin = useSelector((state) => state.auth.isAdmin);
+
+  if (isAdmin == true) {
+    return (
+      <>
+        <KanbanBoardAdmin />
+      </>
+    );
+  } else {
+    return (
+      <>
+        <KanbanBoardEmployee />
+      </>
+    );
+  }
 }
 
 export default App;

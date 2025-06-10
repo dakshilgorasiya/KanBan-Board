@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 import { Snackbar, Alert } from "@mui/material";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const initialColumns = {
   todo: {
@@ -21,6 +23,8 @@ const initialColumns = {
 };
 
 function KanbanBoardEmployee() {
+  const navigate = useNavigate();
+
   // to store data
   const [columns, setColumns] = useState(initialColumns);
 
@@ -83,6 +87,14 @@ function KanbanBoardEmployee() {
     setIsLoading(false);
     setError(null);
   }, []);
+
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+
+  useEffect(() => {
+    if (isLoggedIn === false) {
+      navigate("/login");
+    }
+  }, [isLoggedIn, navigate]);
 
   // to handle error messages
   useEffect(() => {
@@ -179,8 +191,6 @@ function KanbanBoardEmployee() {
           {error}
         </Alert>
       </Snackbar>
-
-      <h1 className="text-2xl font-bold mb-4">Kanban Board</h1>
 
       {/* Columns */}
       <div className="flex flex-wrap gap-4">
