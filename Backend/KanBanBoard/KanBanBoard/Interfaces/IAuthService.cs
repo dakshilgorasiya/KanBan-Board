@@ -12,5 +12,11 @@ namespace KanBanBoard.Interfaces
         public Task<UserModel?> AuthenticateUserAsync(string email, string password);
 
         public string GenerateJwtToken(UserModel user);
+
+        public Task<UserResponseDTO> GetCurrentUserAsync(int userId);
+
+        public Task<bool> RemoveEmployeeAsync(int userId);
+
+        public Task<List<EmployeeListDTO>> GetAllEmployeesAsync();
     }
 }

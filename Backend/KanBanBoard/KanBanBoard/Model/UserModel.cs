@@ -23,6 +23,8 @@ namespace KanBanBoard.Model
         [Required(ErrorMessage = "Role is required.")]
         public UserRole? Role { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         // Navigation Properties
         public ICollection<TaskModel>? AssignedTasks { get; set; } // 1 user -> many tasks
         public ICollection<TasklogModel>? MovedLogs { get; set; }  // 1 user -> many tasklogs
