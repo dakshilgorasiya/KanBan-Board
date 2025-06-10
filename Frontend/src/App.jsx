@@ -1,12 +1,18 @@
 import { useState } from "react";
 import "./App.css";
-import { Login } from "./pages";
-import KanbanBoard from "./components/KanbanBoard";
+import {
+  Login,
+  AddEmployee,
+  KanbanBoardAdmin,
+  KanbanBoardEmployee,
+  TaskLogs,
+  AllLogs,
+} from "./pages";
 
 function App() {
   return (
     <>
-      <KanbanBoard />
+      <Login />
     </>
   );
 }
