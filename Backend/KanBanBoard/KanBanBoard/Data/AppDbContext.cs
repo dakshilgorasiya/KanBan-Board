@@ -63,17 +63,6 @@ namespace KanBanBoard.Data
                 .WithMany(c => c.ToLogs)
                 .HasForeignKey(tl => tl.ToCategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            UserModel AdminUser = new UserModel
-            {
-                UserId = 1,
-                UserName = "admin",
-                Email = "admin@gmail.com",
-                Password = BCrypt.Net.BCrypt.HashPassword("admin@gmail.com"),
-                Role = UserRole.Admin
-            };
-
-            modelBuilder.Entity<UserModel>().HasData(AdminUser);
         }
     }
 }
