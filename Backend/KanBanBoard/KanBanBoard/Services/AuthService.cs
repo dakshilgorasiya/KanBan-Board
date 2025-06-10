@@ -105,7 +105,8 @@ namespace KanBanBoard.Services
             return employees.Select(emp => new EmployeeListDTO
             {
                 Id = emp.UserId,
-                Name = emp.UserName
+                Name = emp.UserName,
+                Email = emp.Email
             }).ToList();
         }
     }

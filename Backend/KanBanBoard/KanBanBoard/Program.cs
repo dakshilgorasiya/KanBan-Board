@@ -24,10 +24,13 @@ namespace KanBanBoard
             // CORS
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("CorsPolicy",
-                    policy => policy.WithOrigins("http://localhost:5173/")
-                                    .AllowAnyMethod()
-                                    .AllowAnyHeader());
+                options.AddPolicy("CorsPolicy", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173")
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials(); // Only if you're using cookies
+                });
             });
 
             // JWT Authentication

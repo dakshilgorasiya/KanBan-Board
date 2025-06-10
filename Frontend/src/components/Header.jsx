@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { removeUser } from "../store/features/authSlice.js";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import { BACKEND_URL } from "../Constant.js";
+import { setUser } from "../store/features/authSlice.js";
 
 function Header() {
   const isAdmin = useSelector((state) => state.auth.isAdmin);
@@ -14,6 +17,22 @@ function Header() {
   };
 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const response = await axios
+        .get(`${BACKEND_URL}/User/Get-CurrentUser`, {
+          withCredentials: true,
+        })
+        .then((res) => res.data);
+
+      response.data.isAdmin = response?.data?.role === "Admin" ? true : false;
+
+      dispatch(setUser(response.data));
+    };
+
+    fetchUser();
+  }, []);
 
   if (!isLoggedIn) return null; // Don't render header if not logged in
 

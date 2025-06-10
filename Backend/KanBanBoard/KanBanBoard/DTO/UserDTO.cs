@@ -7,6 +7,7 @@ namespace KanBanBoard.DTO
     {
         public int Id { get; set; }
         public string? Name { get; set; }
+        public string? Email { get; set; }
     }
 
     public class LoginDTO
@@ -32,7 +33,7 @@ namespace KanBanBoard.DTO
         public string? Password { get; set; }
 
         [Required(ErrorMessage = "Role is required.")]
-        public UserRole? Role { get; set; }
+        public String? Role { get; set; }
     }
 
     public class UserResponseDTO
@@ -43,6 +44,6 @@ namespace KanBanBoard.DTO
 
         public string? Email { get; set; }
 
-        public UserRole? Role { get; set; }
+        public string? Role { get; set; }
     }
 }

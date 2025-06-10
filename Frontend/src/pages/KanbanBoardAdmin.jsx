@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { BACKEND_URL } from "../Constant.js";
 
 const intialColumns = {
   todo: {
@@ -34,11 +36,7 @@ function KanbanBoardAdmin() {
   // to store new category and task data
   const [newCategory, setNewCategory] = useState("");
 
-  const [employees, setEmployees] = useState([
-    { id: 1, name: "Alice" },
-    { id: 2, name: "Bob" },
-    { id: 3, name: "Charlie" },
-  ]);
+  const [employees, setEmployees] = useState([]);
 
   const [newTask, setNewTask] = useState({
     title: "",
@@ -46,6 +44,25 @@ function KanbanBoardAdmin() {
     columnId: "todo",
     assignedTo: "",
   });
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      console.log("Fetching employees...");
+      try {
+        const response = await axios
+          .get(`${BACKEND_URL}/User/Get-All-Employees`, {
+            withCredentials: true,
+          })
+          .then((res) => res.data);
+        setEmployees(response.data);
+      } catch (error) {
+        setError("Failed to fetch employees. Please try again.");
+        console.error("Error fetching employees:", error);
+        return;
+      }
+    };
+    fetchEmployees();
+  }, []);
 
   // to get task data from api
   useEffect(() => {
@@ -185,13 +202,23 @@ function KanbanBoardAdmin() {
     }
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!newCategory.trim()) {
       setError("Category name cannot be empty.");
       return;
     }
     try {
-      // Call API to add new category
+      const response = await axios
+        .post(
+          `${BACKEND_URL}/Category/AddCategory`,
+          {
+            categoryName: newCategory,
+          },
+          {
+            withCredentials: true,
+          }
+        )
+        .then((res) => res.data);
     } catch (error) {
       setError("Failed to add category. Please try again.");
       console.error("Error adding category:", error);

@@ -44,7 +44,7 @@ namespace KanBanBoard.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("Remove-Employee/{employeeId}")]
+        [HttpDelete("Remove-Employee/{employeeId}")]
         public async Task<IActionResult> RemoveEmployee(int employeeId)
         {
             try

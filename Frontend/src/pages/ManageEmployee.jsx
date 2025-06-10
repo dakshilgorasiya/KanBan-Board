@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Snackbar, Alert } from "@mui/material";
+import { BACKEND_URL } from "../Constant.js";
+import axios from "axios";
 
 const ManageEmployee = () => {
   // Sample employees list (replace with your API data)
@@ -11,15 +13,15 @@ const ManageEmployee = () => {
 
   useEffect(() => {
     const fetchEmployees = async () => {
+      console.log("Fetching employees...");
       try {
         // call api
-        const dummyData = [
-          { id: 1, name: "Alice", email: "alice@example.com" },
-          { id: 2, name: "Bob", email: "bob@example.com" },
-          { id: 3, name: "Charlie", email: "charlie@example.com" },
-        ];
-
-        setEmployees(dummyData);
+        const response = await axios
+          .get(`${BACKEND_URL}/User/Get-All-Employees`, {
+            withCredentials: true,
+          })
+          .then((res) => res.data);
+        setEmployees(response.data);
         setLoading(false);
       } catch (error) {
         setError("Failed to fetch employees. Please try again.");
@@ -30,16 +32,23 @@ const ManageEmployee = () => {
     fetchEmployees();
   }, []);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     try {
       setLoading(true);
-      //todo: call api to delete employee
+      const response = await axios.delete(
+        `${BACKEND_URL}/User/Remove-Employee/${id}`,
+        {
+          withCredentials: true,
+        }
+      );
+
       setEmployees(employees.filter((emp) => emp.id !== id));
-      setLoading(false);
     } catch (error) {
       setError("Failed to delete employee. Please try again.");
       console.error("Error deleting employee:", error);
       return;
+    } finally {
+      setLoading(false);
     }
   };
 
