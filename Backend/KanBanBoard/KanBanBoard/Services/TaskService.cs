@@ -2,6 +2,7 @@
 using KanBanBoard.DTO;
 using KanBanBoard.Interfaces;
 using KanBanBoard.Model;
+using Microsoft.AspNetCore.Mvc;
 
 namespace KanBanBoard.Services
 {
@@ -35,7 +36,13 @@ namespace KanBanBoard.Services
 
             await _logRepository.AddLog(log);
 
-            return _mapper.Map<AddTaskResponseDTO>(result);
+            var temp = _mapper.Map<AddTaskResponseDTO>(result);
+
+            var user = await _authRepository.GetUserByIdAsync(requestDTO.AssignTo);
+
+            temp.EmployeeName = user.UserName;
+
+            return temp;
         }
 
         public async Task<DeleteTaskResponseDTO?> DeleteTask(int TaskId, int UserId)
@@ -76,11 +83,11 @@ namespace KanBanBoard.Services
             {
                 CategorywiseTaskDTO categorywiseTaskDTO = new CategorywiseTaskDTO();
                 categorywiseTaskDTO.Title = category.CategoryName;
+                categorywiseTaskDTO.CategoryId = category.CategoryId;
                 categorywiseTaskDTO.Tasks = new List<TaskDTO>();
 
                 foreach(var task in category.Tasks)
                 {
-                    //var employee = await _authRepository.GetUserByIdAsync(task.AssignTo);
                     TaskDTO taskDTO = new TaskDTO()
                     {
                         TaskId = task.TaskId,
@@ -88,6 +95,7 @@ namespace KanBanBoard.Services
                         Description = task.Description,
                         EmployeeName = task.AssignedUser.UserName,
                         CurrentCategoryId = task.CurrentCategoryId,
+                        EmployeeId = task.AssignedUser.UserId,
                     };
                     categorywiseTaskDTO.Tasks.Add(taskDTO);
                 }
