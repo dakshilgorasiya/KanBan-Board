@@ -75,6 +75,7 @@ namespace KanBanBoard
             // AutoMapper
             builder.Services.AddAutoMapper(typeof(AuthMapping));
             builder.Services.AddAutoMapper(typeof(CategoryMapping));
+            builder.Services.AddAutoMapper(typeof(CategoryMapping));
 
             builder.Services.AddControllers();
 
@@ -86,6 +87,9 @@ namespace KanBanBoard
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+            builder.Services.AddScoped<ITaskService, TaskService>();
+            builder.Services.AddScoped<ILogRepository, LogRepository>();
 
             var app = builder.Build();
 
