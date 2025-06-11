@@ -11,6 +11,8 @@ import {
   Box,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
+import axios from "axios";
+import { BACKEND_URL } from "../Constant";
 
 function TaskLogs() {
   const [taskData, setTaskData] = useState({
@@ -23,7 +25,19 @@ function TaskLogs() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // TODO: CALL API TO FETCH TASK LOGS
+      const response = await axios
+        .get(`${BACKEND_URL}/Log/GetLogByTaskId/${taskId}`)
+        .then((res) => res.data);
+      console.log("Fetched task data:", response.data);
+
+      const tempData = {
+        taskName: response.data.taskName || "N/A",
+        currentCategory: response.data.currentCategory || "N/A",
+        history: response.data.logHistory || [],
+      };
+
+      console.log(tempData.history);
+
       const dummyData = {
         taskName: "task1",
         currentCategory: "category1",
@@ -34,33 +48,9 @@ function TaskLogs() {
             MovedTo: "In Progress",
             MovedAt: "2023-10-01T12:00:00Z",
           },
-          {
-            MovedBy: "user1",
-            MovedFrom: "In Progress",
-            MovedTo: "Done",
-            MovedAt: "2023-10-02T14:30:00Z",
-          },
-          {
-            MovedBy: "admin",
-            MovedFrom: "Done",
-            MovedTo: "Archived",
-            MovedAt: "2023-10-03T16:45:00Z",
-          },
-          {
-            MovedBy: "user2",
-            MovedFrom: "Todo",
-            MovedTo: "In Progress",
-            MovedAt: "2023-10-04T10:15:00Z",
-          },
-          {
-            MovedBy: "admin",
-            MovedFrom: "In Progress",
-            MovedTo: "Done",
-            MovedAt: "2023-10-05T11:20:00Z",
-          },
         ],
       };
-      setTaskData(dummyData);
+      setTaskData(tempData);
     };
 
     fetchData();
@@ -104,10 +94,10 @@ function TaskLogs() {
           <TableBody>
             {history.map((log, index) => (
               <TableRow key={index} hover>
-                <TableCell>{log.MovedBy}</TableCell>
-                <TableCell>{log.MovedFrom}</TableCell>
-                <TableCell>{log.MovedTo}</TableCell>
-                <TableCell>{new Date(log.MovedAt).toLocaleString()}</TableCell>
+                <TableCell>{log.movedBy}</TableCell>
+                <TableCell>{log.from}</TableCell>
+                <TableCell>{log.to}</TableCell>
+                <TableCell>{new Date(log.at).toLocaleString()}</TableCell>
               </TableRow>
             ))}
           </TableBody>

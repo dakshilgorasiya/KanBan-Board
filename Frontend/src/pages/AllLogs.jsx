@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Table,
@@ -11,6 +11,8 @@ import {
   Typography,
   Button,
 } from "@mui/material";
+import axios from "axios";
+import { BACKEND_URL } from "../Constant";
 
 const initialState = [
   {
@@ -21,41 +23,27 @@ const initialState = [
     movedBy: "admin",
     movedAt: "2023-10-01T12:00:00Z",
   },
-  {
-    taskId: 1,
-    taskName: "task1",
-    fromCategory: "In Progress",
-    toCategory: "Done",
-    movedBy: "user1",
-    movedAt: "2023-10-02T14:30:00Z",
-  },
-  {
-    taskId: 1,
-    taskName: "task1",
-    fromCategory: "Done",
-    toCategory: "Archived",
-    movedBy: "admin",
-    movedAt: "2023-10-03T16:45:00Z",
-  },
-  {
-    taskId: 2,
-    taskName: "task2",
-    fromCategory: "Todo",
-    toCategory: "In Progress",
-    movedBy: "user2",
-    movedAt: "2023-10-04T10:15:00Z",
-  },
-  {
-    taskId: 2,
-    taskName: "task2",
-    fromCategory: "In Progress",
-    toCategory: "Done",
-    movedBy: "admin",
-    movedAt: "2023-10-05T11:20:00Z",
-  },
 ];
 
 function AllLogs() {
+  const [logs, setLogs] = useState(initialState);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const response = await axios
+          .get(`${BACKEND_URL}/Log/GetAllLogs`)
+          .then((res) => res.data);
+        console.log("Fetched logs:", response.data.taskLogs);
+        setLogs(response.data.taskLogs);
+      } catch (error) {
+        console.error("Error fetching task logs:", error);
+      }
+    };
+
+    fetchLogs();
+  }, []);
+
   return (
     <div className="p-6">
       <Typography variant="h4" gutterBottom>
@@ -66,6 +54,9 @@ function AllLogs() {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>
+                <strong>Task Id</strong>
+              </TableCell>
               <TableCell>
                 <strong>Task Name</strong>
               </TableCell>
@@ -87,11 +78,12 @@ function AllLogs() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {initialState.map((log, index) => (
+            {logs.map((log, index) => (
               <TableRow key={index} hover>
+                <TableCell>{log.taskId}</TableCell>
                 <TableCell>{log.taskName}</TableCell>
-                <TableCell>{log.fromCategory}</TableCell>
-                <TableCell>{log.toCategory}</TableCell>
+                <TableCell>{log.movedFrom}</TableCell>
+                <TableCell>{log.movedTo}</TableCell>
                 <TableCell>{log.movedBy}</TableCell>
                 <TableCell>{new Date(log.movedAt).toLocaleString()}</TableCell>
                 <TableCell>

@@ -48,7 +48,7 @@ namespace KanBanBoard.Repository
         {
             return await _context.Tasks
                 .Include(t => t.CurrentCategory)
-                .FirstOrDefaultAsync(t => t.TaskId == taskId && t.IsDeleted == false);
+                .FirstOrDefaultAsync(t => t.TaskId == taskId);
         }
     }
 }

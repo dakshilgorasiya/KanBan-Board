@@ -13,6 +13,7 @@
         public string? MovedTo { get; set; }
         public string? MovedBy { get; set; }
         public DateTime? MovedAt { get; set; }
+        public int? TaskId { get; set; }
     }
 
     // Response DTOs for GetLogByTaskId
