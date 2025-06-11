@@ -210,6 +210,7 @@ namespace KanBanBoard.Services
             {
                 CategorywiseTaskDTO categorywiseTaskDTO = new CategorywiseTaskDTO();
                 categorywiseTaskDTO.Title = category.CategoryName;
+                categorywiseTaskDTO.CategoryId = category.CategoryId;
                 categorywiseTaskDTO.Tasks = new List<TaskDTO>();
 
                 // Filter tasks assigned to the specific employee
