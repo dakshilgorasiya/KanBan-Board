@@ -170,7 +170,7 @@ function KanbanBoardAdmin() {
     try {
       // call api to update the task
       const response = await axios.put(
-        `${BACKEND_URL}/Task/MoveTask`,
+        `${BACKEND_URL}/Task/MoveTask-By-Admin`,
         {
           taskId: movedItem.taskId,
           fromCategoryId: columns[sourceColId].categoryId,
@@ -290,12 +290,19 @@ function KanbanBoardAdmin() {
     try {
       // Call API to add new task
 
+      console.log(columns);
+
+      const index = columns.findIndex((col) => col.name === "Todo");
+      const categoryId = index !== -1 ? columns[index].categoryId : null;
+
       const formData = {
         title: newTask.title,
         description: newTask.description,
-        currentCategoryId: columns["todo"].categoryId,
+        currentCategoryId: categoryId,
         assignTo: parseInt(newTask.assignedTo, 10),
       };
+
+      console.log(formData);
 
       const response = await axios
         .post(`${BACKEND_URL}/Task/AddTask`, formData, {
@@ -308,19 +315,21 @@ function KanbanBoardAdmin() {
         id: response.data.taskId.toString(),
         title: newTask.title,
         description: newTask.description,
-        assignedTo: newTask.assignedTo,
+        assignedTo: response.data.employeeName,
         employeeName: response.data.employeeName,
         employeeId: response.data.assignTo,
         taskId: response.data.taskId,
       };
 
-      setColumns({
-        ...columns,
-        todo : {
-          ...columns[todo],
-          items: [...columns[todo].items, task],
-        },
-      });
+      console.log(task);
+
+      const updatedColumns = [...columns];
+      updatedColumns[index] = {
+        ...updatedColumns[index],
+        items: [...updatedColumns[index].items, task],
+      };
+
+      setColumns(updatedColumns);
 
       setNewTask({
         title: "",
@@ -335,23 +344,30 @@ function KanbanBoardAdmin() {
     }
   };
 
-  const handleDeleteTask = (colId, taskId) => {
+  const handleDeleteTask = async (colId, taskId) => {
     try {
       // Call API to delete task
       console.log(taskId);
+
+      const response = await axios
+        .delete(`${BACKEND_URL}/Task/DeleteTask`, {
+          params: { id: taskId },
+          withCredentials: true,
+        })
+        .then((res) => res.data);
+
+      setColumns({
+        ...columns,
+        [colId]: {
+          ...columns[colId],
+          items: columns[colId].items.filter((item) => item.id !== taskId),
+        },
+      });
     } catch (error) {
       setError("Failed to delete task. Please try again.");
       console.error("Error deleting task:", error);
       return;
     }
-
-    setColumns({
-      ...columns,
-      [colId]: {
-        ...columns[colId],
-        items: columns[colId].items.filter((item) => item.id !== taskId),
-      },
-    });
   };
 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
