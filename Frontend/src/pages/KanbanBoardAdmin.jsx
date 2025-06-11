@@ -501,6 +501,15 @@ function KanbanBoardAdmin() {
                                 👤 Assigned to: {item.assignedTo}
                               </p>
                             )}
+
+                            <Link
+                              to={`/task-logs/${item.id}`}
+                              className="absolute bottom-1 right-2 text-gray-500 hover:text-blue-500 text-xl"
+                              title="View Task Log"
+                            >
+                              <ArrowRight className="text-blue-500" />
+                            </Link>
+
                             <button
                               onClick={() =>
                                 handleDeleteTask(columnId, item.id)

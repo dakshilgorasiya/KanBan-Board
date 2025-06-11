@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { BACKEND_URL } from "../Constant.js";
 
 const initialColumns = {
   todo: {
@@ -34,58 +36,65 @@ function KanbanBoardEmployee() {
   // to get task data from api
   useEffect(() => {
     // call api to get tasks
-    const dummyResponse = {
-      todo: {
-        name: "To Do",
-        items: [
-          {
-            id: "1",
-            title: "Design landing page",
-            description: "Create responsive UI",
-            lastMainCategory: "todo",
-            assignedTo: "Alice",
-          },
-          {
-            id: "2",
-            title: "Write documentation",
-            description: "Document API endpoints",
-            lastMainCategory: "todo",
-            assignedTo: "Bob",
-          },
-        ],
-        canDelete: false,
-      },
-      inprogress: {
-        name: "In Progress",
-        items: [
-          {
-            id: "3",
-            title: "Develop login page",
-            description: "Implement authentication flow",
-            lastMainCategory: "inprogress",
-            assignedTo: "Charlie",
-          },
-        ],
-        canDelete: false,
-      },
-      done: {
-        name: "Done",
-        items: [
-          {
-            id: "4",
-            title: "Setup database",
-            description: "Initialize schema and tables",
-            lastMainCategory: "done",
-            assignedTo: "Alice",
-          },
-        ],
-        canDelete: false,
-      },
+    const fetchTasks = async () => {
+      try {
+        setIsLoading(true);
+
+        const response = await axios
+          .get(`${BACKEND_URL}/Task/Get-AllTask-By-EmployeeID`, {
+            withCredentials: true,
+          })
+          .then((res) => res.data);
+
+        let data = response.data.categoryWiseTask;
+
+        data.map((item) => {
+          item.name = item.title;
+          item.items = item.tasks;
+          item.title = undefined;
+          item.tasks = undefined;
+          item.items.map((task) => {
+            task.id = task.taskId.toString();
+          });
+        });
+
+        data.map((category) => {
+          if (category.name === "Todo") {
+            // console.log("To Do Category:", category);
+            category.items.map((task) => {
+              task.lastMainCategory = "Todo";
+            });
+          } else if (category.name === "In Progress") {
+            // console.log("In Progress Category:", category);
+            category.items.map((task) => {
+              task.lastMainCategory = "In Progress";
+            });
+          } else if (category.name === "Done") {
+            // console.log("Done Category:", category);
+            category.items.map((task) => {
+              task.lastMainCategory = "Done";
+            });
+          } else {
+            category.items.map((task) => {
+              task.lastMainCategory = "Todo";
+            });
+          }
+        });
+
+        console.log(data);
+
+        setColumns(data);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+        setError("Failed to fetch tasks. Please try again.");
+        return;
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    setColumns(dummyResponse);
-    setIsLoading(false);
-    setError(null);
+    fetchTasks();
   }, []);
 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
@@ -104,7 +113,7 @@ function KanbanBoardEmployee() {
     }
   }, [error]);
 
-  const onDragEnd = (result) => {
+  const onDragEnd = async (result) => {
     const { source, destination } = result;
     if (!destination) return;
 
@@ -122,28 +131,48 @@ function KanbanBoardEmployee() {
     const [movedItem] = sourceItems.splice(source.index, 1);
 
     // restrict moving
-    if (movedItem.lastMainCategory === "inprogress" && destColId === "todo") {
+
+    if (
+      movedItem.lastMainCategory === "In Progress" &&
+      destCol.name === "Todo"
+    ) {
       setError(
         "Cannot move item as it is in progress and cannot be moved back to To Do."
       );
       return;
     }
-    if (movedItem.lastMainCategory === "done" && destColId !== "done") {
+    if (movedItem.lastMainCategory === "Done" && destCol.name !== "Done") {
       setError("Cannot move item as it is done");
       return;
     }
-
+    // console.log(destCol.name);
     // update the lastMainCategory of the moved item
-    if (destColId === "todo") {
-      movedItem.lastMainCategory = "todo";
-    } else if (destColId === "inprogress") {
-      movedItem.lastMainCategory = "inprogress";
-    } else if (destColId === "done") {
-      movedItem.lastMainCategory = "done";
+    if (destCol.name === "Todo") {
+      movedItem.lastMainCategory = "Todo";
+    } else if (destCol.name === "In Progress") {
+      movedItem.lastMainCategory = "In Progress";
+    } else if (destCol.name === "Done") {
+      movedItem.lastMainCategory = "Done";
     }
+
+    console.log("Moved Item:", movedItem);
 
     try {
       // call api to update the task
+      // console.log(movedItem.taskId);
+      // console.log(columns[sourceColId].categoryId);
+      // console.log(columns[destColId].categoryId);
+      const response = await axios.put(
+        `${BACKEND_URL}/Task/MoveTask-By-Employee`,
+        {
+          taskId: movedItem.taskId,
+          fromCategoryId: columns[sourceColId].categoryId,
+          toCategoryId: columns[destColId].categoryId,
+        },
+        {
+          withCredentials: true,
+        }
+      );
     } catch (error) {
       console.error("Error updating task:", error);
       setError("Failed to update task. Please try again.");
