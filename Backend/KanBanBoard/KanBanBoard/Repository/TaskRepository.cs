@@ -73,5 +73,16 @@ namespace KanBanBoard.Repository
                 return null;
             }
         }
+
+        public async Task<List<CategoriesModel>> GetTasksByEmployeeId(int employeeId)
+        {
+            var tasks = await _context.Categories
+                .Where(c => c.IsDeleted == false)
+                .Include(c => c.Tasks.Where(t => t.IsDeleted == false && t.AssignTo == employeeId))
+                .ThenInclude(t => t.AssignedUser)
+                .Where(c => c.Tasks.Any()) // Only include categories that have tasks for this employee
+                .ToListAsync();
+            return tasks;
+        }
     }
 }
