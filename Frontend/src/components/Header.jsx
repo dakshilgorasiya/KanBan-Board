@@ -1,19 +1,42 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { removeUser } from "../store/features/authSlice.js";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { BACKEND_URL } from "../Constant.js";
 import { setUser } from "../store/features/authSlice.js";
+import { Snackbar, Alert } from "@mui/material";
 
 function Header() {
   const isAdmin = useSelector((state) => state.auth.isAdmin);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   const handleLogout = () => {
-    dispatch(removeUser());
-    navigate("/login");
+    try {
+      const response = axios.post(
+        `${BACKEND_URL}/auth/logout`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      dispatch(removeUser());
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setError("Logout failed. Please try again.");
+      return;
+    }
   };
 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
@@ -38,6 +61,15 @@ function Header() {
 
   return (
     <header className="bg-blue-600 text-white px-6 py-4 flex items-center justify-between">
+      <Snackbar
+        open={!!error}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert severity="error" variant="filled">
+          {error}
+        </Alert>
+      </Snackbar>
+
       <Link to="/" className="text-white">
         <h1 className="text-xl font-semibold">Kanban System</h1>
       </Link>
