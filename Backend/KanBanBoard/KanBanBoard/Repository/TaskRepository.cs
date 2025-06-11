@@ -41,7 +41,7 @@ namespace KanBanBoard.Repository
         {
             var tasks = await _context.Categories
                 .Where(c => c.IsDeleted == false)
-                .Include(c => c.Tasks)
+                .Include(c => c.Tasks.Where(t => t.IsDeleted == false))
                 .ThenInclude(c => c.AssignedUser)
                 .ToListAsync();
 
