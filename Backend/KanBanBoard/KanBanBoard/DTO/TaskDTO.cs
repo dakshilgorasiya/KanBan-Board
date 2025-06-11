@@ -74,4 +74,12 @@ namespace KanBanBoard.DTO
         public string? EmployeeName { get; set; }
         public int? CurrentCategoryId { get; set; }
     }
+
+    // Helper class for employee move result
+    public class EmployeeMoveTaskResult
+    {
+        public bool IsSuccess { get; set; }
+        public string? ErrorMessage { get; set; }
+        public MoveTaskResponseDTO? Data { get; set; }
+    }
 }

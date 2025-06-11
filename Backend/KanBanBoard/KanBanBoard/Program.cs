@@ -3,9 +3,12 @@ using KanBanBoard.Interfaces;
 using KanBanBoard.Mapping;
 using KanBanBoard.Repository;
 using KanBanBoard.Services;
+using KanBanBoard.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Net;
 using System.Text;
 
 namespace KanBanBoard
@@ -31,6 +34,24 @@ namespace KanBanBoard
                           .AllowAnyHeader()
                           .AllowCredentials(); // Only if you're using cookies
                 });
+            });
+
+            // adding controller routing & for ModelState error handeling
+            builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = actionContext =>
+                {
+                    var errors = actionContext.ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    return new BadRequestObjectResult(new ApiError(
+                        (int)HttpStatusCode.BadRequest,
+                        "Validation Failed",
+                        errors
+                    ));
+                };
             });
 
             // JWT Authentication
@@ -68,14 +89,16 @@ namespace KanBanBoard
                 options.AddPolicy("EmployeeOnly", policy => policy.RequireRole("Employee"));
             });
 
-            builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
-            {
-                options.SuppressModelStateInvalidFilter = true; // Disable automatic validation response
-            });
+            //builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+            //{
+            //    options.SuppressModelStateInvalidFilter = true; // Disable automatic validation response
+            //});
+
             // AutoMapper
             builder.Services.AddAutoMapper(typeof(AuthMapping));
             builder.Services.AddAutoMapper(typeof(CategoryMapping));
             builder.Services.AddAutoMapper(typeof(CategoryMapping));
+            builder.Services.AddAutoMapper(typeof(LogMapping));
 
             builder.Services.AddControllers();
 
@@ -90,6 +113,7 @@ namespace KanBanBoard
             builder.Services.AddScoped<ITaskRepository, TaskRepository>();
             builder.Services.AddScoped<ITaskService, TaskService>();
             builder.Services.AddScoped<ILogRepository, LogRepository>();
+            builder.Services.AddScoped<ILogService, LogService>();
 
             var app = builder.Build();
 
