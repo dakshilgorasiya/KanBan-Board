@@ -102,7 +102,7 @@ function Login() {
         </Alert>
       </Snackbar>
       <div className="flex w-full h-screen justify-center items-center">
-        <div className="mx-auto mt-10 p-6 border rounded-xl shadow-lg bg-white h-max w-80">
+        <div className="mx-auto mt-10 p-6 rounded-xl shadow-lg bg-white/20 backdrop-blur-md h-max w-80">
           <h2 className="text-3xl font-bold mb-6 text-center">Login</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -117,7 +117,7 @@ function Login() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-200"
+                className="mt-1 w-full p-2 border bg-transparent rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                 required
               />
             </div>
@@ -138,14 +138,14 @@ function Login() {
               <button
                 type="submit"
                 disabled
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition mt-10 cursor-pointer"
+                className="w-full bg-violet-600 text-white py-3 rounded-md hover:bg-violet-700 transition mt-10 cursor-pointer"
               >
                 loading..
               </button>
             ) : (
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition mt-10 cursor-pointer"
+                className="w-full bg-violet-600 text-white py-3 rounded-md hover:bg-violet-700 transition mt-10 cursor-pointer"
               >
                 Login
               </button>

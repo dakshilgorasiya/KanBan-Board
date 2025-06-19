@@ -227,7 +227,7 @@ function KanbanBoardEmployee() {
           {Object.entries(columns).map(([columnId, column]) => (
             <div
               key={columnId}
-              className="bg-gray-100 p-4 rounded w-72 shadow-md flex-shrink-0"
+              className="bg-gray-100/40 p-4 rounded-xl w-72 shadow-md flex-shrink-0"
             >
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-xl font-bold">{column.name}</h2>
@@ -250,7 +250,7 @@ function KanbanBoardEmployee() {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className="p-3 bg-white rounded shadow relative"
+                            className="p-3 bg-white rounded-xl shadow relative"
                           >
                             <h3 className="font-semibold">{item.title}</h3>
                             <p className="text-sm text-gray-600">

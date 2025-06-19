@@ -18,7 +18,7 @@ import {
   KanbanBoardEmployee,
   ManageEmployee,
   TaskLogs,
-  AllLogs,
+  DeletedTask,
 } from "./pages";
 
 const router = createBrowserRouter(
@@ -31,7 +31,7 @@ const router = createBrowserRouter(
       <Route path="/kanban-board-employee" element={<KanbanBoardEmployee />} />
       <Route path="/manage-employees" element={<ManageEmployee />} />
       <Route path="/task-logs/:taskId" element={<TaskLogs />} />
-      <Route path="/all-logs" element={<AllLogs />} />
+      <Route path="/deletedTask" element={<DeletedTask />} />
       <Route
         path="*"
         element={
