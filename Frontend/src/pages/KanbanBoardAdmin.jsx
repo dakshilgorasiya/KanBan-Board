@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { v4 as uuidv4 } from "uuid";
 import { Snackbar, Alert } from "@mui/material";
@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BACKEND_URL } from "../Constant.js";
+import { Dialog, Transition } from "@headlessui/react";
 
 const intialColumns = {
   todo: {
@@ -49,6 +50,10 @@ function KanbanBoardAdmin() {
     description: "",
     assignedTo: "",
   });
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const [isTaskOpen, setIsTaskOpen] = useState(false);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -249,6 +254,7 @@ function KanbanBoardAdmin() {
       },
     });
     setNewCategory("");
+    setIsOpen(false);
   };
 
   const handleDeleteCategory = async (id, columnId) => {
@@ -337,6 +343,8 @@ function KanbanBoardAdmin() {
         columnId: "todo",
         assignedTo: "",
       });
+
+      setIsTaskOpen(false);
     } catch (error) {
       setError("Failed to add task. Please try again.");
       console.log("Error adding task:", error);
@@ -395,60 +403,156 @@ function KanbanBoardAdmin() {
       </Snackbar>
 
       {/* Add Category */}
-      <div className="mb-4 flex gap-2">
-        <input
-          type="text"
-          value={newCategory}
-          onChange={(e) => setNewCategory(e.target.value)}
-          placeholder="New Category Name"
-          className="border p-2 rounded"
-        />
-        <button
-          onClick={handleAddCategory}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Add Category
-        </button>
+      <div>
+        {/* Modal */}
+        <Transition appear show={isOpen} as={Fragment}>
+          <Dialog
+            as="div"
+            className="relative z-10"
+            onClose={() => setIsOpen(false)}
+          >
+            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+            <div className="fixed inset-0 flex items-start justify-center pt-20">
+              <Transition.Child
+                as={Fragment}
+                enter="transition ease-out duration-300"
+                enterFrom="opacity-0 -translate-y-10 scale-95"
+                enterTo="opacity-100 translate-y-0 scale-100"
+                leave="transition ease-in duration-200"
+                leaveFrom="opacity-100 translate-y-0 scale-100"
+                leaveTo="opacity-0 -translate-y-10 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white/70 backdrop-blur p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Add New Category
+                  </Dialog.Title>
+
+                  <div className="mt-4">
+                    <input
+                      type="text"
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      placeholder="Enter category name"
+                      className="w-full border border-gray-300 rounded px-4 py-2"
+                    />
+                  </div>
+
+                  <div className="mt-6 flex justify-end gap-2">
+                    <button
+                      className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      onClick={handleAddCategory}
+                    >
+                      Add
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </Dialog>
+        </Transition>
       </div>
 
       {/* Add Task */}
-      <div className="mb-6 flex gap-2 flex-wrap">
-        <input
-          type="text"
-          value={newTask.title}
-          onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-          placeholder="Task Title"
-          className="border p-2 rounded"
-        />
-        <input
-          type="text"
-          value={newTask.description}
-          onChange={(e) =>
-            setNewTask({ ...newTask, description: e.target.value })
-          }
-          placeholder="Task Description"
-          className="border p-2 rounded"
-        />
-        <select
-          value={newTask.assignedTo}
-          onChange={(e) =>
-            setNewTask({ ...newTask, assignedTo: e.target.value })
-          }
-          className="border p-2 rounded"
-        >
-          <option value="">Select Employee</option>
-          {employees.map((emp) => (
-            <option key={emp.id} value={emp.id}>
-              {emp.name}
-            </option>
-          ))}
-        </select>
+      <div>
+        {/* Trigger Button */}
         <button
-          onClick={handleAddTask}
-          className="bg-green-500 text-white px-4 py-2 rounded"
+          onClick={() => setIsTaskOpen(true)}
+          className="bg-white/50 text-black px-4 py-2 rounded-xl mb-5"
         >
-          Add Task
+          + Add Task
         </button>
+
+        {/* Modal */}
+        <Transition appear show={isTaskOpen} as={Fragment}>
+          <Dialog
+            as="div"
+            className="relative z-10"
+            onClose={() => setIsTaskOpen(false)}
+          >
+            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+
+            <div className="fixed inset-0 flex items-start justify-center pt-20">
+              <Transition.Child
+                as={Fragment}
+                enter="transition ease-out duration-300"
+                enterFrom="opacity-0 -translate-y-10 scale-95"
+                enterTo="opacity-100 translate-y-0 scale-100"
+                leave="transition ease-in duration-200"
+                leaveFrom="opacity-100 translate-y-0 scale-100"
+                leaveTo="opacity-0 -translate-y-10 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-lg transform overflow-visible rounded-2xl bg-white/70 backdrop-blur p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Add New Task
+                  </Dialog.Title>
+
+                  <div className="mt-4 space-y-4">
+                    <input
+                      type="text"
+                      value={newTask.title}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, title: e.target.value })
+                      }
+                      placeholder="Task Title"
+                      className="w-full border border-gray-300 rounded px-4 py-2"
+                    />
+                    <input
+                      type="text"
+                      value={newTask.description}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, description: e.target.value })
+                      }
+                      placeholder="Task Description"
+                      className="w-full border border-gray-300 rounded px-4 py-2"
+                    />
+                    <select
+                      value={newTask.assignedTo}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, assignedTo: e.target.value })
+                      }
+                      className="w-full border border-gray-300 rounded px-4 py-2"
+                    >
+                      <option value="">Select Employee</option>
+                      {employees.map((emp) => (
+                        <option key={emp.id} value={emp.id}>
+                          {emp.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="mt-6 flex justify-end gap-2">
+                    <button
+                      className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                      onClick={handleAddTask}
+                    >
+                      Add Task
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </Dialog>
+        </Transition>
       </div>
 
       {/* Columns */}
@@ -457,7 +561,7 @@ function KanbanBoardAdmin() {
           {Object.entries(columns).map(([columnId, column]) => (
             <div
               key={columnId}
-              className="bg-gray-100 p-4 rounded w-72 shadow-md flex-shrink-0"
+              className="bg-gray-100/40 p-4 rounded-xl w-72 shadow-md flex-shrink-0"
             >
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-xl font-bold">{column.name}</h2>
@@ -490,7 +594,7 @@ function KanbanBoardAdmin() {
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className="p-3 bg-white rounded shadow relative"
+                            className="p-3 bg-white rounded-xl shadow relative"
                           >
                             <h3 className="font-semibold">{item.title}</h3>
                             <p className="text-sm text-gray-600">
@@ -514,7 +618,7 @@ function KanbanBoardAdmin() {
                               onClick={() =>
                                 handleDeleteTask(columnId, item.id)
                               }
-                              className="absolute top-1 right-1 text-xs text-red-500 cursor-pointer"
+                              className="absolute top-2 right-2 text-xs text-red-500 cursor-pointer"
                             >
                               ✕
                             </button>
@@ -529,6 +633,14 @@ function KanbanBoardAdmin() {
             </div>
           ))}
         </DragDropContext>
+
+        {/* Trigger Button */}
+        <button
+          onClick={() => setIsOpen(true)}
+          className="text-white px-4 py-2 bg-white/40 p-4 rounded-xl w-72 shadow-md min-h-[100px] flex-shrink-0 text-3xl"
+        >
+          +
+        </button>
       </div>
     </div>
   );
