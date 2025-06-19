@@ -11,6 +11,8 @@ namespace KanBanBoard.Interfaces
         Task<DeleteTaskResponseDTO?> DeleteTask(int TaskId, int UserId);
         Task<GetAllTaskResponseDTO> GetAllTask();
 
+        Task<List<GetDeletedTasksResponseDTO>> GetDeletedTasks();
+
         // Employee methods
         Task<EmployeeMoveTaskResult?> MoveTaskByEmployee(MoveTaskRequestDTO requestDTO, int employeeId);
         Task<GetAllTaskResponseDTO> GetAllTaskByEmployeeId(int employeeId);

@@ -78,6 +78,13 @@ namespace KanBanBoard.DTO
         public int? CurrentCategoryId { get; set; }
     }
 
+    public class GetDeletedTasksResponseDTO
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+    }
+
     // Helper class for employee move result
     public class EmployeeMoveTaskResult
     {

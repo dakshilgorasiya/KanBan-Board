@@ -235,6 +235,12 @@ namespace KanBanBoard.Services
             return result;
         }
 
+        public async Task<List<GetDeletedTasksResponseDTO>> GetDeletedTasks()
+        {
+            var deletedTasks = await _taskRepository.GetDeletedTasks();
+            return _mapper.Map<List<GetDeletedTasksResponseDTO>>(deletedTasks);
+        }
+
         // Helper methods for employee move validation
         private bool IsValidEmployeeMove(int fromCategoryId, int toCategoryId)
         {

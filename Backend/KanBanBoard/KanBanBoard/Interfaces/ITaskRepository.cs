@@ -17,5 +17,7 @@ namespace KanBanBoard.Interfaces
         Task<TaskModel?> GetTask(int id);
 
         Task<List<CategoriesModel>> GetTasksByEmployeeId(int employeeId);
+
+        Task<List<TaskModel>> GetDeletedTasks();
     }
 }

@@ -214,5 +214,20 @@ namespace KanBanBoard.Controllers
                 return BadRequest(new ApiError(400, ex.Message));
             }
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("GetDeletedTasks")]
+        public async Task<IActionResult> GetDeletedTasks()
+        {
+            try
+            {
+                var result = await _taskService.GetDeletedTasks();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiError(400, ex.Message));
+            }
+        }
     }
 }

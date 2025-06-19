@@ -84,5 +84,13 @@ namespace KanBanBoard.Repository
                 .ToListAsync();
             return tasks;
         }
+
+        public async Task<List<TaskModel>> GetDeletedTasks()
+        {
+            return await _context.Tasks
+                .Where(t => t.IsDeleted == true)
+                .Include(t => t.AssignedUser)
+                .ToListAsync();
+        }
     }
 }
