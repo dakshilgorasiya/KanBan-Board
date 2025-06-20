@@ -365,27 +365,29 @@ function KanbanBoardAdmin() {
 
   const handleDeleteTask = async (taskId, colId) => {
     try {
+      console.log(taskId, colId);
       // Call API to delete task
-      console.log(taskId);
-
-      const response = await axios
-        .delete(`${BACKEND_URL}/Task/DeleteTask`, {
-          params: { id: taskId },
-          withCredentials: true,
-        })
-        .then((res) => res.data);
-
-      setColumns({
-        ...columns,
-        [colId]: {
-          ...columns[colId],
-          items: columns[colId].items.filter((item) => item.id !== taskId),
-        },
+      const response = await axios.delete(`${BACKEND_URL}/Task/DeleteTask`, {
+        params: { id: taskId },
+        withCredentials: true,
       });
+
+      // console.log("Task deleted:", response.data);
+
+      // Update columns array immutably
+      const updatedColumns = [...columns];
+
+      updatedColumns[colId] = {
+        ...updatedColumns[colId],
+        items: updatedColumns[colId].items.filter(
+          (item) => item.id !== taskId.toString()
+        ),
+      };
+
+      setColumns(updatedColumns);
     } catch (error) {
       setError("Failed to delete task. Please try again.");
       console.error("Error deleting task:", error);
-      return;
     }
   };
 
