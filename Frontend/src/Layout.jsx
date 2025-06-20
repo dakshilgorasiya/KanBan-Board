@@ -9,8 +9,7 @@ function Layout() {
         <div
           className="min-h-screen bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url('https://res.cloudinary.com/bloghorizon/image/upload/v1750338244/1305_djwslt.jpg')",
+            backgroundColor: "#f0f0f0",
           }}
         >
           <Header />

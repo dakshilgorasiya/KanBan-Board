@@ -3,7 +3,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { v4 as uuidv4 } from "uuid";
 import { Snackbar, Alert } from "@mui/material";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, AlertTriangle, X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -54,6 +54,10 @@ function KanbanBoardAdmin() {
   const [isOpen, setIsOpen] = useState(false);
 
   const [isTaskOpen, setIsTaskOpen] = useState(false);
+
+    const handleClose = () => {
+    setError("");
+  };
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -395,14 +399,37 @@ function KanbanBoardAdmin() {
 
   return (
     <div className="p-4">
-      <Snackbar
-        open={!!error}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert severity="error" variant="filled">
-          {error}
-        </Alert>
-      </Snackbar>
+      {error && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-xl shadow-2xl border-l-4 border-red-300 min-w-[320px] max-w-md backdrop-blur-sm">
+            <div className="flex items-start space-x-3">
+              {/* Error Icon */}
+              <div className="flex-shrink-0 mt-0.5">
+                <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-4 h-4 text-white" />
+                </div>
+              </div>
+              
+              {/* Error Content */}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-sm mb-1 tracking-wide">Error</h4>
+                <p className="text-sm text-red-50 leading-relaxed break-words opacity-90">
+                  {error}
+                </p>
+              </div>
+              
+              {/* Close Button */}
+              <button
+                onClick={handleClose}
+                className="flex-shrink-0 ml-2 p-1 hover:bg-white hover:bg-opacity-20 rounded-full"
+                aria-label="Close error message"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Category */}
       <div>
@@ -451,7 +478,7 @@ function KanbanBoardAdmin() {
                       Cancel
                     </button>
                     <button
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                      className="px-4 py-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 transition-colors duration-200"
                       onClick={handleAddCategory}
                     >
                       Add
@@ -469,7 +496,7 @@ function KanbanBoardAdmin() {
         {/* Trigger Button */}
         <button
           onClick={() => setIsTaskOpen(true)}
-          className="bg-white/50 text-black px-4 py-2 rounded-xl mb-5"
+          className="bg-white/50 text-black px-4 py-2 rounded-xl ml-6 shadow-md hover:shadow-lg transition-shadow duration-200 flex items-center gap-2 hover:bg-white/70"
         >
           + Add Task
         </button>
@@ -544,7 +571,7 @@ function KanbanBoardAdmin() {
                       Cancel
                     </button>
                     <button
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                      className="px-4 py-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 transition-colors duration-200"
                       onClick={handleAddTask}
                     >
                       Add Task
@@ -558,91 +585,215 @@ function KanbanBoardAdmin() {
       </div>
 
       {/* Columns */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-6 p-6">
         <DragDropContext onDragEnd={onDragEnd}>
           {Object.entries(columns).map(([columnId, column]) => (
             <div
               key={columnId}
-              className="bg-gray-100/40 p-4 rounded-xl w-72 shadow-md flex-shrink-0"
+              className="bg-white/80 border border-white/20 rounded-2xl w-80 shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0"
             >
-              <div className="flex justify-between items-center mb-2">
-                <h2 className="text-xl font-bold">{column.name}</h2>
-                {column.canDelete && (
-                  <button
-                    onClick={() =>
-                      handleDeleteCategory(column.categoryId, columnId)
-                    }
-                    className="text-red-600 text-sm cursor-pointer"
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
-              <Droppable droppableId={columnId}>
-                {(provided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className="min-h-[100px] space-y-2"
-                  >
-                    {column.items.map((item, index) => (
-                      <Draggable
-                        key={item.id}
-                        draggableId={item.id}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="p-3 bg-white rounded-xl shadow relative"
-                          >
-                            <h3 className="font-semibold">{item.title}</h3>
-                            <p className="text-sm text-gray-600">
-                              {item.description}
-                            </p>
-                            {item.assignedTo && (
-                              <p className="text-sm text-blue-600 font-medium">
-                                👤 Assigned to: {item.assignedTo}
-                              </p>
-                            )}
-
-                            <Link
-                              to={`/task-logs/${item.id}`}
-                              className="absolute bottom-1 right-2 text-gray-500 hover:text-blue-500 text-xl"
-                              title="View Task Log"
-                            >
-                              <ArrowRight className="text-blue-500" />
-                            </Link>
-
-                            <button
-                              onClick={() =>
-                                handleDeleteTask(columnId, item.id)
-                              }
-                              className="absolute top-2 right-2 text-xs text-red-500 cursor-pointer"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
+              {/* Column Header */}
+              <div className="p-5 border-b border-white/20">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      {column.name}
+                    </h2>
+                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full font-medium">
+                      {column.items.length}
+                    </span>
                   </div>
-                )}
-              </Droppable>
+                  {column.canDelete && (
+                    <button
+                      onClick={() =>
+                        handleDeleteCategory(column.categoryId, columnId)
+                      }
+                      className="text-gray-400 hover:text-red-500 transition-colors duration-200 p-1 rounded-md hover:bg-red-50"
+                      title="Delete column"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Column Content */}
+              <div className="p-4">
+                <Droppable droppableId={columnId}>
+                  {(provided, snapshot) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className={`min-h-[300px] space-y-3 transition-colors duration-200 rounded-lg p-2 ${
+                        snapshot.isDraggingOver
+                          ? "bg-blue-50 border-2 border-dashed border-blue-300"
+                          : ""
+                      }`}
+                    >
+                      {column.items.map((item, index) => (
+                        <Draggable
+                          key={item.id}
+                          draggableId={item.id}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`group relative bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-move ${
+                                snapshot.isDragging
+                                  ? "rotate-2 shadow-lg border-blue-300"
+                                  : ""
+                              }`}
+                            >
+                              {/* Drag Handle Indicator */}
+                              <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <svg
+                                  className="w-3 h-3 text-gray-400"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                </svg>
+                              </div>
+
+                              {/* Delete Button */}
+                              <button
+                                onClick={() =>
+                                  handleDeleteTask(columnId, item.id)
+                                }
+                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-200 p-1 rounded-md hover:bg-red-50"
+                                title="Delete task"
+                              >
+                                <svg
+                                  className="w-3 h-3"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M6 18L18 6M6 6l12 12"
+                                  />
+                                </svg>
+                              </button>
+
+                              {/* Task Content */}
+                              <div className="pr-8">
+                                <h3 className="font-semibold text-gray-800 mb-2 leading-tight">
+                                  {item.title}
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                                  {item.description}
+                                </p>
+
+                                {item.assignedTo && (
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                      <span className="text-white text-xs font-medium">
+                                        {item.assignedTo
+                                          .charAt(0)
+                                          .toUpperCase()}
+                                      </span>
+                                    </div>
+                                    <span className="text-sm text-gray-700 font-medium">
+                                      {item.assignedTo}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {/* Task Footer */}
+                                <div className="flex justify-end items-center">
+                                  <Link
+                                    to={`/task-logs/${item.id}`}
+                                    className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200 hover:bg-blue-50 px-2 py-1 rounded-md"
+                                    title="View Task Log"
+                                  >
+                                    <span>View</span>
+                                    <ArrowRight className="w-3 h-3" />
+                                  </Link>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+
+                      {/* Empty State */}
+                      {column.items.length === 0 && (
+                        <div className="text-center py-8 text-gray-400">
+                          <svg
+                            className="w-8 h-8 mx-auto mb-2 opacity-50"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            />
+                          </svg>
+                          <p className="text-sm">No tasks yet</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
             </div>
           ))}
         </DragDropContext>
 
-        {/* Trigger Button */}
-        <button
-          onClick={() => setIsOpen(true)}
-          className="text-white px-4 py-2 bg-white/40 p-4 rounded-xl w-72 shadow-md min-h-[100px] flex-shrink-0 text-3xl"
-        >
-          +
-        </button>
+        {/* Add Column Button */}
+        <div className="w-80 flex-shrink-0">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="w-full bg-gradient-to-br from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-2xl p-8 min-h-[200px] flex flex-col items-center justify-center gap-3 transition-all duration-200 group"
+          >
+            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow duration-200">
+              <svg
+                className="w-6 h-6 text-gray-600 group-hover:text-blue-600 transition-colors duration-200"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="text-gray-600 font-medium group-hover:text-blue-600 transition-colors duration-200">
+                Add New Column
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                Create a new task category
+              </p>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
   );

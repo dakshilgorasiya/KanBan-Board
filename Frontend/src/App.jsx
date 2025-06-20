@@ -6,7 +6,6 @@ import {
   KanbanBoardAdmin,
   KanbanBoardEmployee,
   TaskLogs,
-  AllLogs,
 } from "./pages";
 import { useSelector } from "react-redux";
 

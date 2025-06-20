@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { v4 as uuidv4 } from "uuid";
-import { Snackbar, Alert } from "@mui/material";
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, AlertTriangle, X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -32,6 +29,10 @@ function KanbanBoardEmployee() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const handleClose = () => {
+    setError("");
+  };
 
   // to get task data from api
   useEffect(() => {
@@ -178,7 +179,7 @@ function KanbanBoardEmployee() {
             withCredentials: true,
           }
         );
-        console.log("api : " + response);  
+        console.log("api : " + response);
       } catch (error) {
         console.error("Error updating task:", error);
         setError("Failed to update task. Please try again.");
@@ -219,58 +220,138 @@ function KanbanBoardEmployee() {
 
   return (
     <div className="p-4">
-      <Snackbar
-        open={!!error}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert severity="error" variant="filled">
-          {error}
-        </Alert>
-      </Snackbar>
+      {error && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-xl shadow-2xl border-l-4 border-red-300 min-w-[320px] max-w-md backdrop-blur-sm">
+            <div className="flex items-start space-x-3">
+              {/* Error Icon */}
+              <div className="flex-shrink-0 mt-0.5">
+                <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-4 h-4 text-white" />
+                </div>
+              </div>
+              
+              {/* Error Content */}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-sm mb-1 tracking-wide">Error</h4>
+                <p className="text-sm text-red-50 leading-relaxed break-words opacity-90">
+                  {error}
+                </p>
+              </div>
+              
+              {/* Close Button */}
+              <button
+                onClick={handleClose}
+                className="flex-shrink-0 ml-2 p-1 hover:bg-white hover:bg-opacity-20 rounded-full"
+                aria-label="Close error message"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Columns */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-6 p-6">
         <DragDropContext onDragEnd={onDragEnd}>
           {Object.entries(columns).map(([columnId, column]) => (
             <div
               key={columnId}
-              className="bg-gray-100/40 p-4 rounded-xl w-72 shadow-md flex-shrink-0"
+              className="bg-white/80 border border-white/20 rounded-2xl w-80 shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0"
             >
-              <div className="flex justify-between items-center mb-2">
-                <h2 className="text-xl font-bold">{column.name}</h2>
+              {/* Column Header */}
+              <div className="p-5 border-b border-white/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    {column.name}
+                  </h2>
+                  <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full font-medium">
+                    {column.items.length}
+                  </span>
+                </div>
               </div>
-              <Droppable droppableId={columnId}>
-                {(provided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className="min-h-[100px] space-y-2"
-                  >
-                    {column.items.map((item, index) => (
-                      <Draggable
-                        key={item.id}
-                        draggableId={item.id}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="p-3 bg-white rounded-xl shadow relative"
+
+              {/* Column Content */}
+              <div className="p-4">
+                <Droppable droppableId={columnId}>
+                  {(provided, snapshot) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className={`min-h-[300px] space-y-3 transition-colors duration-200 rounded-lg p-2 ${
+                        snapshot.isDraggingOver
+                          ? "bg-blue-50 border-2 border-dashed border-blue-300"
+                          : ""
+                      }`}
+                    >
+                      {column.items.map((item, index) => (
+                        <Draggable
+                          key={item.id}
+                          draggableId={item.id}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`group relative bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-move ${
+                                snapshot.isDragging
+                                  ? "rotate-2 shadow-lg border-blue-300"
+                                  : ""
+                              }`}
+                            >
+                              {/* Drag Handle Indicator */}
+                              <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <svg
+                                  className="w-3 h-3 text-gray-400"
+                                  fill="currentColor"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                </svg>
+                              </div>
+
+                              {/* Task Content */}
+                              <div className="pr-4">
+                                <h3 className="font-semibold text-gray-800 mb-2 leading-tight">
+                                  {item.title}
+                                </h3>
+                                <p className="text-sm text-gray-600 line-clamp-3">
+                                  {item.description}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+
+                      {/* Empty State */}
+                      {column.items.length === 0 && (
+                        <div className="text-center py-8 text-gray-400">
+                          <svg
+                            className="w-8 h-8 mx-auto mb-2 opacity-50"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
-                            <h3 className="font-semibold">{item.title}</h3>
-                            <p className="text-sm text-gray-600">
-                              {item.description}
-                            </p>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            />
+                          </svg>
+                          <p className="text-sm">No tasks yet</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
             </div>
           ))}
         </DragDropContext>
