@@ -172,7 +172,7 @@ function KanbanBoardAdmin() {
       movedItem.lastMainCategory = "done";
     }
 
-    if (sourceColId !== destColId && source.index !== destination.index) {
+    if (sourceColId !== destColId) {
       try {
         // call api to update the task
         const response = await axios.put(

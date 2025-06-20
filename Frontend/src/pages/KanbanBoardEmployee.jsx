@@ -146,6 +146,11 @@ function KanbanBoardEmployee() {
       return;
     }
 
+    if (destCol.name == "In Progress" && destCol.items.length >= 1) {
+      setError("Cannot move item to In Progress as it already has a task.");
+      return;
+    }
+
     // console.log(destCol.name);
     // update the lastMainCategory of the moved item
     if (destCol.name === "Todo") {
@@ -156,8 +161,7 @@ function KanbanBoardEmployee() {
       movedItem.lastMainCategory = "Done";
     }
 
-    console.log("Moved Item:", movedItem);
-    if (sourceColId !== destColId && source.index !== destination.index) {
+    if (sourceColId !== destColId) {
       try {
         // call api to update the task
         // console.log(movedItem.taskId);
@@ -174,6 +178,7 @@ function KanbanBoardEmployee() {
             withCredentials: true,
           }
         );
+        console.log("api : " + response);  
       } catch (error) {
         console.error("Error updating task:", error);
         setError("Failed to update task. Please try again.");
