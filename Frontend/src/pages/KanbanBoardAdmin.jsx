@@ -55,7 +55,7 @@ function KanbanBoardAdmin() {
 
   const [isTaskOpen, setIsTaskOpen] = useState(false);
 
-    const handleClose = () => {
+  const handleClose = () => {
     setError("");
   };
 
@@ -245,20 +245,24 @@ function KanbanBoardAdmin() {
           }
         )
         .then((res) => res.data);
+      const id = response.data.categoryId;
+      const oldColumns = { ...columns };
+      console.log(oldColumns);
+      const len = Object.keys(oldColumns).length;
+      oldColumns[id] = {
+        id: id.toString(),
+        items: [],
+        canDelete: true,
+        name: newCategory,
+        categoryId: id,
+      };
+      setColumns(oldColumns);
     } catch (error) {
       setError("Failed to add category. Please try again.");
       console.error("Error adding category:", error);
       return;
     }
-    const id = uuidv4();
-    setColumns({
-      ...columns,
-      [id]: {
-        name: newCategory,
-        items: [],
-        canDelete: true,
-      },
-    });
+
     setNewCategory("");
     setIsOpen(false);
   };
@@ -268,6 +272,7 @@ function KanbanBoardAdmin() {
       setError("Cannot delete category with tasks in it.");
       return;
     }
+    console.log(id);
     try {
       // Call API to delete category
       const response = await axios.delete(
@@ -409,15 +414,17 @@ function KanbanBoardAdmin() {
                   <AlertTriangle className="w-4 h-4 text-white" />
                 </div>
               </div>
-              
+
               {/* Error Content */}
               <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-sm mb-1 tracking-wide">Error</h4>
+                <h4 className="font-semibold text-sm mb-1 tracking-wide">
+                  Error
+                </h4>
                 <p className="text-sm text-red-50 leading-relaxed break-words opacity-90">
                   {error}
                 </p>
               </div>
-              
+
               {/* Close Button */}
               <button
                 onClick={handleClose}
@@ -674,7 +681,7 @@ function KanbanBoardAdmin() {
                               {/* Delete Button */}
                               <button
                                 onClick={() =>
-                                  handleDeleteTask(columnId, item.id)
+                                  handleDeleteTask(item.id, columnId)
                                 }
                                 className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-200 p-1 rounded-md hover:bg-red-50"
                                 title="Delete task"
