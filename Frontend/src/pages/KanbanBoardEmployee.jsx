@@ -145,6 +145,12 @@ function KanbanBoardEmployee() {
       setError("Cannot move item as it is done");
       return;
     }
+
+    if (destCol.name == "In Progress" && destCol.items.length >= 1) {
+      setError("Cannot move item to In Progress as it already has a task.");
+      return;
+    }
+
     // console.log(destCol.name);
     // update the lastMainCategory of the moved item
     if (destCol.name === "Todo") {
@@ -155,28 +161,29 @@ function KanbanBoardEmployee() {
       movedItem.lastMainCategory = "Done";
     }
 
-    console.log("Moved Item:", movedItem);
-
-    try {
-      // call api to update the task
-      // console.log(movedItem.taskId);
-      // console.log(columns[sourceColId].categoryId);
-      // console.log(columns[destColId].categoryId);
-      const response = await axios.put(
-        `${BACKEND_URL}/Task/MoveTask-By-Employee`,
-        {
-          taskId: movedItem.taskId,
-          fromCategoryId: columns[sourceColId].categoryId,
-          toCategoryId: columns[destColId].categoryId,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-    } catch (error) {
-      console.error("Error updating task:", error);
-      setError("Failed to update task. Please try again.");
-      return;
+    if (sourceColId !== destColId) {
+      try {
+        // call api to update the task
+        // console.log(movedItem.taskId);
+        // console.log(columns[sourceColId].categoryId);
+        // console.log(columns[destColId].categoryId);
+        const response = await axios.put(
+          `${BACKEND_URL}/Task/MoveTask-By-Employee`,
+          {
+            taskId: movedItem.taskId,
+            fromCategoryId: columns[sourceColId].categoryId,
+            toCategoryId: columns[destColId].categoryId,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+        console.log("api : " + response);  
+      } catch (error) {
+        console.error("Error updating task:", error);
+        setError("Failed to update task. Please try again.");
+        return;
+      }
     }
 
     if (sourceColId === destColId) {

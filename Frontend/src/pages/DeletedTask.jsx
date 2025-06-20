@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -10,6 +10,9 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import axios from "axios";
+import { BACKEND_URL } from "../Constant.js";
+import { Snackbar, Alert } from "@mui/material";
 
 const initialState = [
   {
@@ -30,11 +33,49 @@ const initialState = [
 ];
 
 function DeletedTask() {
-  const [tasks] = useState(initialState);
+  const [tasks, setTasks] = useState(initialState);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios
+          .get(`${BACKEND_URL}/Task/GetDeletedTasks`, {
+            withCredentials: true,
+          })
+          .then((res) => res.data);
+
+        setTasks(response);
+
+        console.log("Fetched tasks:", response);
+      } catch (error) {
+        setError("Failed to fetch tasks. Please try again.");
+        console.error("Error fetching tasks:", error);
+        return;
+      }
+    };
+
+    fetchTasks();
+  }, []);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <div className="p-2">
+      <Snackbar
+        open={!!error}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert severity="error" variant="filled">
+          {error}
+        </Alert>
+      </Snackbar>
       <TableContainer
         component={Paper}
         elevation={3}

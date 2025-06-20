@@ -23,12 +23,12 @@ const AddEmployee = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Employee Added:", employee);
 
     try {
-      const response = axios.post(
+      const response = await axios.post(
         `${BACKEND_URL}/Auth/Add-Employee`,
         employee,
         {
@@ -36,7 +36,7 @@ const AddEmployee = () => {
         }
       );
 
-      navigate("/kanban-board-admin");
+      navigate("/manage-employees");
     } catch (error) {
       setError("Failed to add employee. Please try again.");
       console.error("Error adding employee:", error);
