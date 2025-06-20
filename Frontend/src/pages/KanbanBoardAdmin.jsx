@@ -363,7 +363,7 @@ function KanbanBoardAdmin() {
     }
   };
 
-  const handleDeleteTask = async (colId, taskId) => {
+  const handleDeleteTask = async (taskId, colId) => {
     try {
       // Call API to delete task
       console.log(taskId);
