@@ -172,27 +172,29 @@ function KanbanBoardAdmin() {
       movedItem.lastMainCategory = "done";
     }
 
-    try {
-      // call api to update the task
-      const response = await axios.put(
-        `${BACKEND_URL}/Task/MoveTask-By-Admin`,
-        {
-          taskId: movedItem.taskId,
-          fromCategoryId: columns[sourceColId].categoryId,
-          toCategoryId: columns[destColId].categoryId,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      // console.log(movedItem.taskId)
-      // console.log(columns[sourceColId].categoryId);
-      // console.log(columns[destColId].categoryId);
-    } catch (error) {
-      0;
-      console.error("Error updating task:", error);
-      setError("Failed to update task. Please try again.");
-      return;
+    if (sourceColId !== destColId && source.index !== destination.index) {
+      try {
+        // call api to update the task
+        const response = await axios.put(
+          `${BACKEND_URL}/Task/MoveTask-By-Admin`,
+          {
+            taskId: movedItem.taskId,
+            fromCategoryId: columns[sourceColId].categoryId,
+            toCategoryId: columns[destColId].categoryId,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+        // console.log(movedItem.taskId)
+        // console.log(columns[sourceColId].categoryId);
+        // console.log(columns[destColId].categoryId);
+      } catch (error) {
+        0;
+        console.error("Error updating task:", error);
+        setError("Failed to update task. Please try again.");
+        return;
+      }
     }
 
     if (sourceColId === destColId) {
@@ -537,7 +539,7 @@ function KanbanBoardAdmin() {
                   <div className="mt-6 flex justify-end gap-2">
                     <button
                       className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => setIsTaskOpen(false)}
                     >
                       Cancel
                     </button>
