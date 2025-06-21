@@ -201,30 +201,47 @@ function KanbanBoardAdmin() {
       }
     }
 
+    console.log(sourceColId, destColId);
     if (sourceColId === destColId) {
       // if source and destination are the same column then just reorder the items
       sourceItems.splice(destination.index, 0, movedItem);
-      setColumns({
-        ...columns,
-        [sourceColId]: {
-          ...sourceCol,
-          items: sourceItems,
-        },
-      });
+      // setColumns({
+      //   ...columns,
+      //   [sourceColId]: {
+      //     ...sourceCol,
+      //     items: sourceItems,
+      //   },
+      // });
+      let updatedColumns = [...columns];
+      updatedColumns[sourceColId] = {
+        ...sourceCol,
+        items: sourceItems,
+      };
+      setColumns(updatedColumns);
     } else {
       // if source and destination are different columns then move the item to the destination column
       destItems.splice(destination.index, 0, movedItem);
-      setColumns({
-        ...columns,
-        [sourceColId]: {
-          ...sourceCol,
-          items: sourceItems,
-        },
-        [destColId]: {
-          ...destCol,
-          items: destItems,
-        },
-      });
+      // setColumns({
+      //   ...columns,
+      //   [sourceColId]: {
+      //     ...sourceCol,
+      //     items: sourceItems,
+      //   },
+      //   [destColId]: {
+      //     ...destCol,
+      //     items: destItems,
+      //   },
+      // });
+      let updatedColumns = [...columns];
+      updatedColumns[sourceColId] = {
+        ...sourceCol,
+        items: sourceItems,
+      };
+      updatedColumns[destColId] = {
+        ...destCol,
+        items: destItems,
+      };
+      setColumns(updatedColumns);
     }
   };
 
@@ -246,16 +263,17 @@ function KanbanBoardAdmin() {
         )
         .then((res) => res.data);
       const id = response.data.categoryId;
-      const oldColumns = { ...columns };
+      const oldColumns = [
+        ...columns,
+        {
+          id: id.toString(),
+          items: [],
+          canDelete: true,
+          name: newCategory,
+          categoryId: id,
+        },
+      ];
       console.log(oldColumns);
-      const len = Object.keys(oldColumns).length;
-      oldColumns[id] = {
-        id: id.toString(),
-        items: [],
-        canDelete: true,
-        name: newCategory,
-        categoryId: id,
-      };
       setColumns(oldColumns);
     } catch (error) {
       setError("Failed to add category. Please try again.");
@@ -289,8 +307,9 @@ function KanbanBoardAdmin() {
       console.error("Error deleting category:", error);
       return;
     }
-    const updated = { ...columns };
-    delete updated[columnId];
+    let updated = [...columns];
+    console.log(updated);
+    updated = updated.filter((col) => col.categoryId !== id);
     setColumns(updated);
   };
 
