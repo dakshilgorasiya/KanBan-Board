@@ -7,6 +7,65 @@ import { BACKEND_URL } from "../Constant.js";
 import { setUser } from "../store/features/authSlice.js";
 import { Snackbar, Alert } from "@mui/material";
 
+// Mobile Navigation Link Component
+const MobileNavLink = ({ to, onClick, icon, children }) => {
+  const getIcon = (iconName) => {
+    switch (iconName) {
+      case "trash":
+        return (
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+        );
+      case "users":
+        return (
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+            />
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <NavLink
+      to={to}
+      onClick={onClick}
+      className={({ isActive }) =>
+        `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+          isActive
+            ? "bg-blue-500/20 text-blue-300 border border-blue-400/30"
+            : "text-white hover:bg-white/10 hover:text-blue-200"
+        }`
+      }
+    >
+      {getIcon(icon)}
+      <span className="font-medium">{children}</span>
+    </NavLink>
+  );
+};
+
 function Header() {
   const isAdmin = useSelector((state) => state.auth.isAdmin);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
@@ -65,20 +124,45 @@ function Header() {
       }
     };
 
-    fetchUser();
+    if (isLoggedIn) {
+      fetchUser();
+    }
   }, [dispatch, isLoggedIn]);
 
-  // Close mobile menu when clicking outside
+  // Close mobile menu when clicking outside or on navigation
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isMenuOpen && !event.target.closest(".mobile-menu")) {
+      const mobileMenu = document.querySelector(".mobile-menu-container");
+      const menuButton = document.querySelector(".mobile-menu-button");
+
+      if (
+        isMenuOpen &&
+        mobileMenu &&
+        !mobileMenu.contains(event.target) &&
+        !menuButton.contains(event.target)
+      ) {
         setIsMenuOpen(false);
       }
     };
 
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    if (isMenuOpen) {
+      document.addEventListener("click", handleClickOutside);
+      // Prevent body scroll when menu is open
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+      document.body.style.overflow = "unset";
+    };
   }, [isMenuOpen]);
+
+  // Close menu on route change
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location?.pathname]);
 
   if (!isLoggedIn) return null;
 
@@ -90,7 +174,7 @@ function Header() {
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         autoHideDuration={5000}
         onClose={() => setError(null)}
-        className="z-50"
+        style={{ zIndex: 9999 }}
       >
         <Alert
           severity="error"
@@ -110,7 +194,7 @@ function Header() {
       {/* Main Header */}
       <div className="relative overflow-hidden">
         {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 animate-gradient-x"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-indigo-600/20"></div>
         <div className="absolute inset-0 backdrop-blur-sm"></div>
 
@@ -126,6 +210,7 @@ function Header() {
               <Link
                 to="/"
                 className="flex items-center space-x-4 group transition-all duration-300 hover:scale-105"
+                onClick={() => setIsMenuOpen(false)}
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
@@ -159,11 +244,25 @@ function Header() {
               <nav className="hidden lg:flex items-center space-x-2">
                 {isAdmin && (
                   <div className="flex items-center space-x-5 mr-6 text-white">
-                    <NavLink to="/deletedTask" icon="trash">
-                      <p className="hover:underline">Deleted Tasks</p>
+                    <NavLink
+                      to="/deletedTask"
+                      className={({ isActive }) =>
+                        `hover:underline transition-colors ${
+                          isActive ? "text-blue-300" : "text-white"
+                        }`
+                      }
+                    >
+                      Deleted Tasks
                     </NavLink>
-                    <NavLink to="/manage-employees" icon="users">
-                      <p className="hover:underline">Manage Team</p>
+                    <NavLink
+                      to="/manage-employees"
+                      className={({ isActive }) =>
+                        `hover:underline transition-colors ${
+                          isActive ? "text-blue-300" : "text-white"
+                        }`
+                      }
+                    >
+                      Manage Team
                     </NavLink>
                   </div>
                 )}
@@ -242,11 +341,16 @@ function Header() {
 
               {/* Mobile Menu Button */}
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden p-3 text-white hover:bg-white/10 rounded-xl transition-all duration-200 backdrop-blur-md border border-white/20"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMenuOpen(!isMenuOpen);
+                }}
+                className="mobile-menu-button lg:hidden p-3 text-white hover:bg-white/10 rounded-xl transition-all duration-200 backdrop-blur-md border border-white/20 relative z-50"
+                aria-label="Toggle mobile menu"
+                aria-expanded={isMenuOpen}
               >
                 <svg
-                  className="w-6 h-6"
+                  className="w-6 h-6 transition-transform duration-200"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -269,105 +373,116 @@ function Header() {
                 </svg>
               </button>
             </div>
-
-            {/* Mobile Navigation Menu */}
-            {isMenuOpen && (
-              <div className="lg:hidden mobile-menu mt-6 p-4 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl">
-                <nav className="flex flex-col space-y-3">
-                  {/* Mobile User Info */}
-                  {user && (
-                    <div className="flex items-center space-x-3 px-4 py-3 bg-white/5 rounded-xl border-b border-white/10 mb-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
-                        {(user.name || user.email || "U")
-                          .charAt(0)
-                          .toUpperCase()}
-                      </div>
-                      <div className="text-white">
-                        <div className="font-semibold">
-                          {user.name || user.email}
-                        </div>
-                        {isAdmin && (
-                          <span className="inline-block mt-1 px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 rounded-full text-xs font-bold">
-                            Admin
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Mobile Navigation Links */}
-                  {isAdmin && (
-                    <>
-                      <MobileNavLink
-                        to="/deletedTask"
-                        onClick={() => setIsMenuOpen(false)}
-                        icon="trash"
-                      >
-                        Deleted Tasks
-                      </MobileNavLink>
-                      <MobileNavLink
-                        to="/manage-employees"
-                        onClick={() => setIsMenuOpen(false)}
-                        icon="users"
-                      >
-                        Manage Team
-                      </MobileNavLink>
-                    </>
-                  )}
-
-                  {/* Mobile Logout Button */}
-                  <button
-                    onClick={handleLogout}
-                    disabled={isLoggingOut}
-                    className="group mt-4 px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                  >
-                    {isLoggingOut ? (
-                      <>
-                        <svg
-                          className="w-5 h-5 animate-spin"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        <span>Signing out...</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                          />
-                        </svg>
-                        <span>Logout</span>
-                      </>
-                    )}
-                  </button>
-                </nav>
-              </div>
-            )}
           </div>
         </header>
+
+        {/* Mobile Navigation Menu */}
+        {isMenuOpen && (
+          <div className="lg:hidden mobile-menu-container fixed inset-x-0 top-0 z-40 pt-24">
+            <div className="mx-4 mt-2 p-4 bg-slate-900/95 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl">
+              <nav className="flex flex-col space-y-3">
+                {/* Mobile User Info */}
+                {user && (
+                  <div className="flex items-center space-x-3 px-4 py-3 bg-white/5 rounded-xl border-b border-white/10 mb-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                      {(user.name || user.email || "U").charAt(0).toUpperCase()}
+                    </div>
+                    <div className="text-white">
+                      <div className="font-semibold">
+                        {user.name || user.email}
+                      </div>
+                      {isAdmin && (
+                        <span className="inline-block mt-1 px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 rounded-full text-xs font-bold">
+                          Admin
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Mobile Navigation Links */}
+                {isAdmin && (
+                  <>
+                    <MobileNavLink
+                      to="/deletedTask"
+                      onClick={() => setIsMenuOpen(false)}
+                      icon="trash"
+                    >
+                      Deleted Tasks
+                    </MobileNavLink>
+                    <MobileNavLink
+                      to="/manage-employees"
+                      onClick={() => setIsMenuOpen(false)}
+                      icon="users"
+                    >
+                      Manage Team
+                    </MobileNavLink>
+                  </>
+                )}
+
+                {/* Mobile Logout Button */}
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    handleLogout();
+                  }}
+                  disabled={isLoggingOut}
+                  className="group mt-4 px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  {isLoggingOut ? (
+                    <>
+                      <svg
+                        className="w-5 h-5 animate-spin"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span>Signing out...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                        />
+                      </svg>
+                      <span>Logout</span>
+                    </>
+                  )}
+                </button>
+              </nav>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Menu Overlay */}
+        {isMenuOpen && (
+          <div
+            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
+            onClick={() => setIsMenuOpen(false)}
+          />
+        )}
       </div>
     </>
   );
